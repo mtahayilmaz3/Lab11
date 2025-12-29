@@ -10,6 +10,13 @@ import api from "../api/client";
 
 export default function ProfileDetailScreen({ route }) {
   const { id } = route.params;
+   if (!id) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Missing profile id.</Text>
+      </View>
+    );
+  }
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);

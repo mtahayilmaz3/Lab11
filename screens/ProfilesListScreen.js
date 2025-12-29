@@ -13,7 +13,7 @@ export default function ProfilesListScreen({ navigation }) {
   const [profiles, setProfiles] = useState([]);
   const [page, setPage] = useState(1);
 
-  const [loading, setLoading] = useState(false);       // pagination loading
+  const [loading, setLoading] = useState(false); // pagination loading
   const [initialLoading, setInitialLoading] = useState(true); // first load
   const [refreshing, setRefreshing] = useState(false); // pull-to-refresh
 
@@ -42,7 +42,11 @@ export default function ProfilesListScreen({ navigation }) {
         setHasMore(items.length === LIMIT);
 
         if (mode === "append") {
-          setProfiles((prev) => [...prev, ...items]);
+          setProfiles((prev) => {
+            const existingIds = new Set(prev.map((p) => p.id));
+            const filtered = items.filter((p) => !existingIds.has(p.id));
+            return [...prev, ...filtered];
+          });
         } else {
           setProfiles(items);
         }
@@ -103,9 +107,7 @@ export default function ProfilesListScreen({ navigation }) {
     if (initialLoading) return null;
     return (
       <View style={{ padding: 20, alignItems: "center" }}>
-        <Text style={{ marginBottom: 10 }}>
-          No profiles found.
-        </Text>
+        <Text style={{ marginBottom: 10 }}>No profiles found.</Text>
         <TouchableOpacity
           onPress={() => fetchProfiles(1, "initial")}
           style={{
@@ -132,7 +134,14 @@ export default function ProfilesListScreen({ navigation }) {
 
   if (error && profiles.length === 0) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 20,
+        }}
+      >
         <Text style={{ marginBottom: 10, textAlign: "center" }}>
           Error: {error}
         </Text>
@@ -160,7 +169,9 @@ export default function ProfilesListScreen({ navigation }) {
       onEndReachedThreshold={0.4}
       ListFooterComponent={renderFooter}
       ListEmptyComponent={renderEmpty}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     />
   );
 }
